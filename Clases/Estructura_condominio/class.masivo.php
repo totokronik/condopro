@@ -34,7 +34,7 @@ for ($i=1; $i <= $sector; $i++) {
 		}
 	}
 }
-die();
+
 while($SP_Fila = $SP_Resultado->fetch_assoc()){
 	$SP_Valor = $SP_Fila['valor'];
 }
