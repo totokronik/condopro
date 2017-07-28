@@ -1,5 +1,5 @@
 <?php 
-require "../Datos/config.php";
+require "../../Datos/config.php";
 
 $accion = 'U';
 $usuario = $_POST['username'];
@@ -19,11 +19,11 @@ while($row = mysqli_fetch_assoc($resultado)){
 
 	switch ($valor) {
 		case '-2':
-			$msg = "<script>alert('Espacio no existe'); window.location.href = '../Vistas/pages/gestion_espacios_comunes.php'</script>";
+			$msg = "<script>alert('Espacio no existe'); window.location.href = '../../Vistas/pages/Modulo_espacio_comun/espacio.index.php'</script>";
 			echo $msg;
 			break;
 		case '2':
-			$msg = "<script>alert('Espacio actualizado'); window.location.href = '../Vistas/pages/gestion_espacios_comunes.php'</script>";
+			$msg = "<script>alert('Espacio actualizado'); window.location.href = '../../Vistas/pages/Modulo_espacio_comun/espacio.index.php'</script>";
 			echo $msg;
 			break;
 	}

@@ -13,7 +13,7 @@ $usuario = $_GET['id'];
 
 	$accion = 'D';
 
-	$sql = "call CRUD_usuarios_por_Administrador('$accion','$username', 'asd', 1, '12312313', 'asd ads', 'bda bdsa', 12321312, 'asd@gmail.com', $activo, 'asd', 'asd')";
+	$sql = "call CRUD_Usuarios_por_Administrador('$accion','$username', 'asd', 1, '12312313', 'asd ads', 'bda bdsa', 12321312, 'asd@gmail.com', $activo, 'asd', 'asd')";
 
 
 	$resultado2 = mysqli_query($conexion, $sql);

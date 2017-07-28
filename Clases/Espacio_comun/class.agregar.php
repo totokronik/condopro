@@ -10,7 +10,7 @@ $descripcion = $_POST['descripcion'];
 $activo = $_POST['activo'];
 
 
-$SP_Query = "call CRUD_Espacios_Comunes_V2('$accion', 1, $id_condominio, $id_tipo_espacio, '$descripcion', $activo, '$username')";
+$SP_Query = "call CRUD_Espacios_Comunes('$accion', 1, $id_condominio, $id_tipo_espacio, '$descripcion', $activo, '$username')";
 
 $resultado = mysqli_query($conexion, $SP_Query);
 

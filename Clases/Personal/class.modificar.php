@@ -10,7 +10,7 @@ $id_personal = $_POST['personal'];
 $id_condominio = $_POST['condominio'];
 $activo = 1;
 
-$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS_V2('$accion','$perfil', $id_usuario, $id_condominio, 1, 1, $rol, $activo, '$usrCreacion')";
+$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS('$accion','$perfil', $id_usuario, $id_condominio, 1, 1, $rol, $activo, '$usrCreacion')";
 
 
 $resultado2 = mysqli_query($conexion, $SP_Query);

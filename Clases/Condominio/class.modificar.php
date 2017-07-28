@@ -6,6 +6,7 @@ $usuario = $_POST['userCreacion'];
 $rut = $_POST['rut'];
 $digito = $_POST['dv'];
 $condominio = $_POST['condominio'];
+$idcondominio = $_POST['idcondominio'];
 $direccion = $_POST['direccion'];
 $comunas = $_POST['comunas'];
 $sectores = $_POST['sectores'];
@@ -14,7 +15,8 @@ $unidad_piso = $_POST['unidad_piso'];
 $primer_piso = $_POST['primer_piso'];
 $activo = 1;
 
-$SP_Query = "call CRUD_Condominio_V2('$accion', 1, $rut, '$digito', '$condominio', '$direccion', $comunas, $sectores, $primer_piso, $cantidad_piso, $unidad_piso, $activo, '$usuario')";
+$SP_Query = "call CRUD_Condominio_V2('$accion', $idcondominio, $rut, '$digito', '$condominio', '$direccion', $comunas, $sectores, $primer_piso, $cantidad_piso, $unidad_piso, $activo, '$usuario')";
+
 
 $resultado = mysqli_query($conexion, $SP_Query);
 

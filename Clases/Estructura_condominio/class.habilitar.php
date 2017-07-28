@@ -6,7 +6,7 @@ $estructura = $_GET['id'];
 $usuario = $_GET['user'];
 $activo = 1;
 
-$consulta = "call SP_CRUD_ESTRUCTURA_CONDOMINIO_TEST('$accion', 1, 1, 1, 'asd', 'asd', $activo, '$usuario')";
+$consulta = "call SP_CRUD_ESTRUCTURA_CONDOMINIO('$accion', 1, 1, 1, 'asd', 'asd', $activo, '$usuario',1)";
 
 $resultado = mysqli_query($conexion, $consulta);
 

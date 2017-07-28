@@ -11,7 +11,7 @@ $username = $_POST['usuario'];
 $usrCreacion = $_POST['userCreacion'];
 
 
-$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS_V2('$accion','$perfil', $username, $condominio, 1, 1, $rol, $activo, '$usrCreacion')";
+$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS('$accion','$perfil', $username, $condominio, 1, 1, $rol, $activo, '$usrCreacion')";
 
 $resultado = mysqli_query($conexion, $SP_Query);
 

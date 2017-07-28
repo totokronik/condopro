@@ -1,5 +1,6 @@
 <?php 
 require "../../Datos/config.php";
+require "../../Datos/rut.php";
 
 #Acción requerida para insertar registros
 $accion = "I";
@@ -14,9 +15,18 @@ $activo = $_POST['activoRadio'];
 $chileno = $_POST['chilenoRadio'];
 $usrCreacion = $_POST['userCreacion'];
 
-$SP_Query = "call CRUD_Usuarios_por_Administrador('$accion', '$username', '$password', '$chileno', '$nro_documento', '$nombre', '$apellido', $telefono, '$email', '$activo', '$usrCreacion', '$usrCreacion')";
-
-$resultado = mysqli_query($conexion, $SP_Query);
+if($chileno == 1){
+	if(validaRut($nro_documento) === FALSE){
+		$msg = "<script type='text/javascript'>alert('El Rut ingresado es inválido'); window.location.href = '../../Vistas/pages/Modulo_usuario/usuario.index.php'</script>";
+		echo $msg;
+	}else{
+		$SP_Query = "call CRUD_Usuarios_por_Administrador('$accion', '$username', '$password', $chileno, '$nro_documento', '$nombre', '$apellido', $telefono, '$email', '$activo', '$usrCreacion', '$usrCreacion')";
+		$resultado = mysqli_query($conexion, $SP_Query);	
+	}
+}else{
+	$SP_Query = "call CRUD_Usuarios_por_Administrador('$accion', '$username', '$password', $chileno, '$nro_documento', '$nombre', '$apellido', $telefono, '$email', '$activo', '$usrCreacion', '$usrCreacion')";
+	$resultado = mysqli_query($conexion, $SP_Query);
+}
 
 while($row = mysqli_fetch_assoc($resultado)){
 	$valor = $row['valor'];

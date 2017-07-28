@@ -14,7 +14,7 @@ $activo = 1;
 $chileno = $_POST['chilenoRadio'];
 $usrCreacion = $_POST['usuario_creacion'];
 
-$SP_Query = "call CRUD_Usuarios_por_Administrador('$accion', '$username', '$password', '$chileno', '$nro_documento', '$nombre', '$apellido', $telefono, '$email', $activo, '$usrCreacion', '$usrCreacion')";
+$SP_Query = "call CRUD_Usuarios_por_Administrador('$accion', '$username', '$password', $chileno, '$nro_documento', '$nombre', '$apellido', $telefono, '$email', $activo, '$usrCreacion', '$usrCreacion')";
 
 $resultado = mysqli_query($conexion, $SP_Query);
 

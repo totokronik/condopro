@@ -12,14 +12,6 @@ $usrCreacion = $_POST['userCreacion'];
 
 $SP_Query = "call CRUD_Favoritos('$accion', 1, $residente, $chileno, '$documento', '$nombre', '$usrCreacion')";
 
-// IN pAccion			CHAR(1),
-// IN pIdFavorito		INT,
-// IN pIdResidente		INT,
-// IN pChileno			BIT,
-// IN pNumeroDocumento	VARCHAR(20),
-// IN pNombre			VARCHAR(255),
-// IN pUsuario			VARCHAR(30)
-
 $resultado = mysqli_query($conexion, $SP_Query);
 
 while($row = mysqli_fetch_assoc($resultado)){

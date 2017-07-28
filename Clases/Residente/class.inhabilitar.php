@@ -19,7 +19,7 @@ while($row1 = $resultado1->fetch_assoc()){
 	$condominio = $row1['condominio'];
 }
 
-$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS_V2('$accion','$perfil', 1, $condominio, 1, $residente, 1, $activo, '$usrCreacion')";
+$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS('$accion','$perfil', 1, $condominio, 1, $residente, 1, $activo, '$usrCreacion')";
 
 
 $resultado2 = mysqli_query($conexion, $SP_Query);

@@ -1,5 +1,5 @@
 <?php 
 	session_start();
 	session_destroy();
-	header('Location: ../../Vistas/pages/login.html');
+	header('Location: ../../index.php');
 ?>

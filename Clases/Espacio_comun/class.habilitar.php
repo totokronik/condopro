@@ -23,7 +23,7 @@ $username = $_GET['username'];
 
 	$accion = 'D';
 
-	$sql = "call CRUD_Espacios_Comunes_V2('$accion', $espacio_comun, $condominio, $tipo_espacio, 'asdad', $activo, '$username')";
+	$sql = "call CRUD_Espacios_Comunes('$accion', $espacio_comun, $condominio, $tipo_espacio, 'asdad', $activo, '$username')";
 
 
 	$resultado2 = mysqli_query($conexion, $sql);
@@ -34,11 +34,11 @@ $username = $_GET['username'];
 
 	switch ($valor) {
 		case '-3':
-			$msg = "<script>alert('Espacio no existe'); window.location.href = '../../Vistas/pages/gestion_espacios_comunes.php'</script>";
+			$msg = "<script>alert('Espacio no existe'); window.location.href = '../../Vistas/pages/Modulo_espacio_comun/espacio.index.php'</script>";
 			echo $msg;
 			break;
 		case '3':
-			$msg = "<script>alert('Espacio Habilitado'); window.location.href = '../Vistas/pages/gestion_espacios_comunes.php'</script>";
+			$msg = "<script>alert('Espacio Habilitado'); window.location.href = '../../Vistas/pages/Modulo_espacio_comun/espacio.index.php'</script>";
 			echo $msg;
 			break;
 	}

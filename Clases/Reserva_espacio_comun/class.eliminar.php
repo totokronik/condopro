@@ -7,18 +7,18 @@ $id_reserva = $_GET['id'];
 $username = $_GET['user'];
 
 $consulta_sp = "SELECT 
-				fecha_hora_inicio
+				fecha_hora_inicio,
+				fecha_hora_termino
 			FROM registro_reserva_espacio_comun
 			WHERE id_registro_reserva = $id_reserva";
 
 $resultado_sp = mysqli_query($conexion, $consulta_sp);
 while ($fila_sp = $resultado_sp->fetch_assoc()) {
 	$fecha_inicio = $fila_sp['fecha_hora_inicio'];
+	$fecha_termino = $fila_sp['fecha_hora_termino'];
 }
 
-$SP_Query = "call SP_RESERVA_ESPACIOS_COMUNES('$accion', $id_reserva, 1, 1, 'asd', '$fecha_inicio', 'asd', '$username')";
-
-
+$SP_Query = "call SP_RESERVA_ESPACIOS_COMUNES('$accion', $id_reserva, 1, 1, 'asd', '$fecha_inicio', '$fecha_termino', '$username')";
 
 $resultado = mysqli_query($conexion, $SP_Query);
 

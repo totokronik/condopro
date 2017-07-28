@@ -6,7 +6,8 @@ $usrCreacion = $_GET['user'];
 $activo = 0;
 $accion = 'D';
 $perfil = 'P';
-$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS_V2('$accion','$perfil', $usuario, $condominio, 1, 1, 3, $activo, '$usrCreacion')";
+
+$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS('$accion','$perfil', $usuario, $condominio, 1, 1, 3, $activo, '$usrCreacion')";
 $resultado = mysqli_query($conexion, $SP_Query);
 while($row = mysqli_fetch_assoc($resultado)){
 	$valor = $row['valor'];

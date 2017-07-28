@@ -18,25 +18,92 @@ while ($fila_sector = $resultado_sector->fetch_assoc()) {
 	$unidades_por_piso = $fila_sector['unidades_por_piso'];
 }
 
-$contador = $sector * (($cantidad_piso-$primer_piso)+1)*$unidades_por_piso;
+$contador = $sector * (($cantidad_piso+$primer_piso)-$primer_piso)*$unidades_por_piso;
+
+#die($contador);
+##Variables globales 
+$EntroInsert = 0;
+$SP_Resultado = '';
+$SP_Valor = 0;
+$SP_ValorCont = 0;
+
+$SP_QueryCont = "Select Count(id_estructura_condominio) as cont from ESTRUCTURA_CONDOMINIO where id_condominio = $condominio and unidad <> '00000' group by id_condominio";
+
+	$SP_ResultadoCont = mysqli_query($conexion, $SP_QueryCont);
+
+while($SP_Fila = $SP_ResultadoCont->fetch_assoc()){
+	$SP_ValorCont = $SP_Fila['cont'];
+}
+$SumaCont = $SP_ValorCont +  $contador;
+if ($SumaCont > $contador)
+{
+
+$SP_Valor = -1;
+
+}else
+{
+
 
 #Primer for para obtener names de inputs repetidos
 for ($i=1; $i <= $sector; $i++) {
 	$nombre = 'sector'.$i;
 	$nombre_sector = $_POST[$nombre];
 	#For para obtener el crear pisos
-	for ($j=$primer_piso; $j <= $cantidad_piso; $j++) { 
+	for ($j=$primer_piso; $j <= $cantidad_piso+1; $j++) { 
 		# Insertar la unidad
-		for ($p=1; $p <= $unidades_por_piso; $p++) {
-			$unidad = $j.'0'.$p; 
-			$SP_Query = "call SP_CRUD_ESTRUCTURA_CONDOMINIO('$accion', '$formato', $condominio, 1, '$nombre_sector', '$unidad', $activo, '$usrCreacion', $contador)";
+		 for ($p=1; $p <= $unidades_por_piso; $p++) {
+			
+		 	if ( $j < 10){
+		 		if ($p < 10){
+		 	$unidad = $j.'0'.$p; 
+		 		}else{
+
+		 			$unidad = $j.$p; 
+		 		}
+
+		 	}elseif ($p < 10){
+
+		 		$unidad = $j.'0'.$p; 
+		 	}else{
+
+		 		$unidad = $j.$p; 
+		 	}
+					
+			$Concat_Formato ="";
+			switch ($formato) {
+
+						case '1':
+						$Concat_Formato = "CONCAT('$nombre_sector' ,'-', '$unidad')";
+						$SP_Valor = 1;
+							break;
+						case '2':
+						$Concat_Formato = "CONCAT('$unidad' ,'-', '$nombre_sector')";
+						$SP_Valor = 2;
+							break;
+						case '3':
+						$Concat_Formato = "CONCAT('$unidad')";
+						$SP_Valor = 3;
+							break;
+							}
+
+			$SP_Query = "INSERT INTO ESTRUCTURA_CONDOMINIO ( id_condominio, unidad, activo, usr_creacion, usr_ult_mod) VALUES ($condominio, $Concat_Formato, $activo, '$usrCreacion', '$usrCreacion')";
+
+			try{
+
 			$SP_Resultado = mysqli_query($conexion, $SP_Query);
+				
+			}	
+			catch(Exception $e){
+
+						$error= 'Message: ' .$e->getMessage();
+
+			}
+
 		}
+
 	}
 }
 
-while($SP_Fila = $SP_Resultado->fetch_assoc()){
-	$SP_Valor = $SP_Fila['valor'];
 }
 
 switch ($SP_Valor) {

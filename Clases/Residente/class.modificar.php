@@ -11,18 +11,7 @@ $condominio = $_POST['condominio'];
 $usrCreacion = $_POST['userCreacion'];
 
 
-$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS_V2('$accion','$perfil', 1, $condominio, $estructura, $residente, 1, $activo, '$usrCreacion')";
-
-//$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS_V2('$accion','$perfil', $username, $condominio, $estructura, $residente, $rol, $activo, '$usrCreacion')";
-// IN `pAccion` char(1),
-// IN `pPerfil` char(1),
-// IN `pIdUsuario` integer,
-// IN `pIdCondominio` integer,
-// IN `pIdEstructuraCondominio` integer,
-// IN `pIdResidente` integer,
-// IN `pIdRol` integer,
-// IN `pActivo` integer ,
-// IN `pUsuario` varchar(50)
+$SP_Query = "call SP_GESTIONAR_PERFIL_USUARIOS('$accion','$perfil', 1, $condominio, $estructura, $residente, 1, $activo, '$usrCreacion')";
 
 $resultado = mysqli_query($conexion, $SP_Query);
 

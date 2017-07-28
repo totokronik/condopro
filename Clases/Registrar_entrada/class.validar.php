@@ -1,9 +1,11 @@
 <?php
+session_start();
 require "../../Datos/config.php";
 
 $accion = "V";
 $registro = $_GET['id'];
 $nombre_usuario = $_GET['user'];
+$id_usuario = $_SESSION['id_usuario'];
 
 $consulta = "SELECT 
 				rpf.id_registro as id_registro,
@@ -20,7 +22,8 @@ while ($fila = $resultado->fetch_assoc()) {
 	$condominio = $fila['condominio'];
 }
 
-$SP_Query = "call SP_Registro_poblacion_flotante('$accion', 'lll', $condominio, 1, $registro, $usuario, 1, date('Y-m-d H:i:s'), 1, 'dsakjhd', 'dsad', 'dsa', 1, date('Y-m-d H:i:s'), '$nombre_usuario' )";
+$SP_Query = "call SP_Registro_poblacion_flotante('$accion', 'lll', $condominio, 1, $registro, $id_usuario, 1, date('Y-m-d H:i:s'), 1, 'dsakjhd', 'dsad', 'dsa', 1, date('Y-m-d H:i:s'), '$nombre_usuario' )";
+
 
 $SP_Resultado = mysqli_query($conexion, $SP_Query);
 
