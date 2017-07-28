@@ -1,8 +1,11 @@
 <?php
 session_start();
 require '../../../Datos/config.php';
+require "../../../Datos/rut.php";
+require "../../../Datos/sidebar.php";
+
 if(isset($_SESSION['loggedin'])){
-    if ($_SESSION['perfil'] > 2 ) {
+    if ($_SESSION['perfil'] == 3 || $_SESSION['perfil'] == 4 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7) {
         
     } else{
         echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
@@ -13,7 +16,7 @@ if(isset($_SESSION['loggedin'])){
         echo "<script>alert('No se ha seleccionado condominio'); window.location.href = '../condominio.php'</script>";
     }
 }else{
-echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
+    echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
 }
 
 $perfil = $_SESSION['perfil'];
@@ -96,23 +99,9 @@ break;
         $(document).ready(function() {
         $('#example').dataTable( {
         dom: 'Bfrtip',
-        <?php  
-        switch ($perfil) {
-            case '2':
-                echo "buttons: [
-                        'excel', 'pdf', 'print'
-                        ],";
-                break;
-            case '4':
-                echo "buttons: [
-                        'excel', 'pdf', 'print'
-                        ],";
-                break;
-            default:
-                echo "buttons: [],";
-                break;
-        }
-        ?>
+        buttons: [
+            'excel', 'pdf', 'print'
+        ],
         "language":{
         "sProcessing":     "Procesando...",
         "sLengthMenu":     "Mostrar _MENU_ registros",
@@ -170,167 +159,33 @@ break;
                     <!-- /.dropdown -->
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+
                             <i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['username'];?> <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li class="divider"></li>
-                            <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a></li>
-                            
-                            <li><a href="Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
+                        <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a>
                         </li>
-                        <li><a href='Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>
-                        <li class='divider'></li>
-                        <li><a href='../../../Clases/Login/class.logout.php'><i class='fa fa-sign-out fa-fw'></i> Desconectar</a></li>                        
-                    </ul>
-                    <!-- /.dropdown-user -->
+                        <li class="divider"></li>
+                            <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
+                        </li>
+                        <?php
+                            if($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7){
+                                echo "<li><a href='../Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
+                            }
+                        ?>
+                    <li class="divider"></li>
+                    <li><a href="../../../Clases/Login/class.logout.php"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
                 </li>
+            </ul>
+            <!-- /.dropdown-user -->
+        </li>
         <!-- /.dropdown -->
     </ul>
     <!-- /.navbar-top-links -->
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-                <?php switch ($perfil) {
-                        case '-1':
-                        echo    "<li>
-                                    <a href=../'index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_usuario/usuario.index.php'>Usuarios</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                    </ul>
-                                    <!-- /.nav-second-level -->
-                                </li>
-                                <li>
-                                    <a href='../Modulo_condominio/condominio.index.php'><i class='fa fa-table fa-fw'></i> Condominios</a>
-                                </li>";
-                        break;
-                        case '1':
-                        echo   "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_reserva_espacio_comun/reserva.index.php'><i class='fa fa-table fa-fw'></i> Reserva espacio común</a>
-                                </li>";
-                        break;
-                        case '2':
-                            echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                    <!-- /.nav-second-level -->
-                                </li>";
-                        break;
-                        case '3':
-                            echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                    <!-- /.nav-second-level -->
-                                </li>";
-                        break;
-                        case '4':
-                            echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_estructura_condominio/estructura.index.php'><i class='fa fa-building fa-fw'></i> Estructura Condominio</a>
-                                </li>";
-                        break;
-                        default:
-                          echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                    <!-- /.nav-second-level -->
-                                </li>";
-                        break;
-                        } ?>               
+                <?php echo MostrarNavegadorSecundario($perfil); ?>
             </ul>
         </div>
         <!-- /.sidebar-collapse -->
@@ -354,6 +209,17 @@ break;
                 <!-- /.panel-heading -->
                 <?php  
                 switch ($perfil) {
+                    case '3':
+                        echo "<br>
+                            <div class='row'>
+                                <div></div>
+                                <div class='col-md-12'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='residente.agregar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nuevo Residente</a>
+                                    <a href='residente.habilitar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-eye-close'></span> Residentes Inhabilitados</a>
+                                </div>
+                            </div>";
+                        break;
                     case '4':
                         echo "<br>
                             <div class='row'>
@@ -365,9 +231,27 @@ break;
                                 </div>
                             </div>";
                         break;
-                    
-                    default:
-                        echo "";
+                    case '6':
+                        echo "<br>
+                            <div class='row'>
+                                <div></div>
+                                <div class='col-md-12'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='residente.agregar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nuevo Residente</a>
+                                    <a href='residente.habilitar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-eye-close'></span> Residentes Inhabilitados</a>
+                                </div>
+                            </div>";
+                        break;
+                    case '7':
+                        echo "<br>
+                            <div class='row'>
+                                <div></div>
+                                <div class='col-md-12'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='residente.agregar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nuevo Residente</a>
+                                    <a href='residente.habilitar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-eye-close'></span> Residentes Inhabilitados</a>
+                                </div>
+                            </div>";
                         break;
                 }
                 ?>
@@ -383,12 +267,17 @@ break;
                                 <th>Email</th>
                                 <th>Estructura condominio</th>
                                 <?php switch ($perfil) {
+                                    case '3':
+                                        echo "<th>Acciones</th>";
+                                        break;
                                     case '4':
                                         echo "<th>Acciones</th>";
                                         break;
-                                    
-                                    default:
-                                        echo "";
+                                    case '6':
+                                        echo "<th>Acciones</th>";
+                                        break;
+                                    case '7':
+                                        echo "<th>Acciones</th>";
                                         break;
                                 } ?>
                             </tr>
@@ -410,29 +299,44 @@ break;
                             JOIN usuarios us ON rc.id_usuario = us.id_usuario
                             JOIN estructura_condominio ec ON rc.id_estructura_condominio = ec.id_estructura_condominio
                             WHERE rc.activo = 1
-                            AND ec.id_condominio = $condominio";
+                            AND ec.id_condominio = $condominio 
+                            AND us.id_usuario <> 0";
                             $resultado = mysqli_query($conexion, $sql);
                             while ($row = $resultado->fetch_assoc()) {
                             
                             ?>
                             <tr class="odd gradeX">
                                 <td style="display: none;"><?php echo $row['id']; ?></td>
-                                <td><?php echo $row['rut']; ?></td>
+                                <td><?php echo formateo_rut($row['rut']); ?></td>
                                 <td><?php echo $row['nombres']; ?></td>
                                 <td><?php echo $row['apellidos']; ?></td>
                                 <td><?php echo $row['telefono']; ?></td>
                                 <td><?php echo $row['email']; ?></td>
                                 <td><?php echo $row['unidad_condominio']; ?></td>
                                 <?php switch ($perfil) {
+                                    case '3':
+                                        echo "<td>
+                                                <a href='residente.modificar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."' title='Modificar' class='btn btn-info btn-block'><i class='fa fa-pencil'></i></a>
+                                                <a href='../../../Clases/Residente/class.inhabilitar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."&user=".$_SESSION['username']."' title='Inhabilitar' class='btn btn-warning btn-block'><i class='fa fa-times'></i></a>
+                                            </td>";
+                                        break;
                                     case '4':
                                         echo "<td>
                                                 <a href='residente.modificar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."' title='Modificar' class='btn btn-info btn-block'><i class='fa fa-pencil'></i></a>
                                                 <a href='../../../Clases/Residente/class.inhabilitar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."&user=".$_SESSION['username']."' title='Inhabilitar' class='btn btn-warning btn-block'><i class='fa fa-times'></i></a>
                                             </td>";
                                         break;
-                                    
-                                    default:
-                                        echo "";
+                                    case '6':
+                                        echo "<td>
+                                                <a href='residente.modificar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."' title='Modificar' class='btn btn-info btn-block'><i class='fa fa-pencil'></i></a>
+                                                <a href='../../../Clases/Residente/class.inhabilitar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."&user=".$_SESSION['username']."' title='Inhabilitar' class='btn btn-warning btn-block'><i class='fa fa-times'></i></a>
+                                            </td>";
+                                        break;
+                                    case '7':
+                                        echo "<td>
+                                                <a href='residente.modificar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."' title='Modificar' class='btn btn-info btn-block'><i class='fa fa-pencil'></i></a>
+                                                <a href='../../../Clases/Residente/class.inhabilitar.php?id=".$row['id']."&estructura=".$row['estructura_condominio']."&user=".$_SESSION['username']."' title='Inhabilitar' class='btn btn-warning btn-block'><i class='fa fa-times'></i></a>
+                                            </td>";
                                         break;
                                 } ?>
                             </tr>

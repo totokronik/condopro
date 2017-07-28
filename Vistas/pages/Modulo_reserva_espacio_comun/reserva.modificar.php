@@ -2,33 +2,21 @@
 session_start();
 require "../../../Datos/config.php";
 require "../../../Datos/sidebar.php";
-
 if(isset($_SESSION['loggedin'])){
-    if ($_SESSION['perfil'] >= 1) {
-
-    } else{
-        echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
-    }
-
-    if(isset($_SESSION['condominio'])){
-
-    }else{
-        echo "<script>alert('No se ha seleccionado condominio'); window.location.href = '../condominio.php'</script>";
-    }
-}else{
-    echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
+if ($_SESSION['perfil'] >= 1) {
+} else{
+echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
 }
-
+if(isset($_SESSION['condominio'])){
+}else{
+echo "<script>alert('No se ha seleccionado condominio'); window.location.href = '../condominio.php'</script>";
+}
+}else{
+echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
+}
 $perfil = $_SESSION['perfil'];
 $condominio = $_SESSION['condominio'];
 $usuario = $_SESSION['id_usuario'];
-$consulta_sp = "SELECT id_residente
-FROM residente_condominio
-WHERE id_usuario = $usuario";
-$resultado_sp = mysqli_query($conexion, $consulta_sp);
-while ($fila_sp = $resultado_sp->fetch_assoc()) {
-$usuario_residente = $fila_sp['id_residente'];
-}
 
 #Obtener perfil para mostrar en desplegable del nombre de usuario
 switch ($perfil) {
@@ -57,6 +45,17 @@ case '7':
 $msg = "Administrador y Residente";
 break;
 }
+
+# Llenar datos
+$id = $_GET['id'];
+$consulta = "SELECT fecha_hora_inicio, fecha_hora_termino FROM registro_reserva_espacio_comun WHERE id_registro_reserva = $id";
+$resultado = mysqli_query($conexion, $consulta);
+
+while ($fila = $resultado->fetch_assoc()) {
+    $fecha_inicio = $fila['fecha_hora_inicio'];
+    $fecha_termino = $fila['fecha_hora_termino'];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -111,16 +110,16 @@ break;
                             <i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['username'];?> <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a>
+                            <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a>
                         </li>
                         <li class="divider"></li>
-                            <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
-                        </li>
-                        <?php
-                            if($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7){
-                                echo "<li><a href='../Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
-                            }
-                        ?>
+                        <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
+                    </li>
+                    <?php
+                    if($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7){
+                    echo "<li><a href='../Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
+                    }
+                    ?>
                     <li class="divider"></li>
                     <li><a href="../../../Clases/Login/class.logout.php"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
                 </li>
@@ -156,7 +155,7 @@ break;
                 </div>
                 <br>
                 <!-- /.panel-heading -->
-                <form action="../../../Clases/Reserva_espacio_comun/class.agregar.php" method="POST" accept-charset="utf-8">
+                <form action="../../../Clases/Reserva_espacio_comun/class.modificar.php" method="POST" accept-charset="utf-8">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-12">
@@ -164,79 +163,34 @@ break;
                                     <label>Usuario</label>
                                     <input type="text" class="form-control" placeholder="Usuario" name="userCreacion" value="<?php echo $_SESSION['username']; ?>" />
                                 </div>
-                                <?php 
-                                if($perfil == 1){
-                                    if(isset($usuario_residente)){ ?>
-                                        <div class="form-group" style="display: none;">
-                                            <label>Residente</label>
-                                            <input type="text" class="form-control" placeholder="residente" name="residente" value="<?php echo $usuario_residente; ?>" />
-                                        </div>
-                                    <?php }
-                                }else{?>
-                                <div class="form-group">
+                                <div class="form-group" style="display: none;">
                                     <label>Residente</label>
-                                    <select name="residente" class="form-control">
-                                    <?php
-                                        $consulta_r = "SELECT 
-                                                        rc.id_residente AS Residente, 
-                                                        CONCAT(us.nombres,' ',us.apellidos) AS Nombre,
-                                                        us.numero_documento AS Rut
-                                                       FROM residente_condominio rc
-                                                       INNER JOIN usuarios us ON rc.id_usuario = us.id_usuario
-                                                       INNER JOIN estructura_condominio ec ON rc.id_estructura_condominio = ec.id_estructura_condominio
-                                                       INNER JOIN condominios cn ON ec.id_condominio = cn.id_condominio
-                                                       WHERE rc.activo = 1
-                                                       AND ec.id_condominio = $condominio
-                                                       AND us.id_usuario <> 0";
-                                            $resultado_r = mysqli_query($conexion, $consulta_r);
-                                            while ($fila_r = $resultado_r->fetch_assoc()) {
-                                                echo "<option value='".$fila_r['Residente']."'>".$fila_r['Rut']." - ".$fila_r['Nombre']."</option>";
-                                            }
-                                    ?>
-                                    </select>
+                                    <input type="text" class="form-control" placeholder="residente" name="reserva" value="<?php echo $id; ?>" />
                                 </div>
-                                <?php } ?>
                                 <div class="form-group">
-                                    <fieldset><label>Espacio Comun</label>
-                                    <select class="form-control form-control-static" name="espacioComun" id="espacioComun" required>
-                                        <?php
-                                        $consulta = "SELECT * FROM espacios_comunes";
-                                        $resultado = mysqli_query($conexion, $consulta);
-                                        while ($row = $resultado->fetch_assoc()) {
-                                        ?>
-                                        <option value="<?php echo $row['id_espacio_comun'];?>"><?php echo $row['descripcion']; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </fieldset>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha de inicio</label>&nbsp;&nbsp;
-                                <input type="text" name="fecha_inicio" class="form-control datetimepicker" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha de termino</label>&nbsp;&nbsp;
-                                <input type="text" name="fecha_termino" class="form-control datetimepicker" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Observación</label>
-                                <textarea name="observacion" class="form-control" required="" style="resize: none;"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <input type="submit" class="btn btn-block btn-primary btn-lg" value="Agregar">
-                            </div>
-                            <div class="form-group">
-                                <a href="../../../Vistas/pages/Modulo_reserva_espacio_comun/reserva.index.php" class="btn btn-block btn-warning btn-lg">Volver</a>
+                                    <label>Fecha de inicio</label>&nbsp;&nbsp;
+                                    <input type="text" name="fecha_inicio" value="<?php echo $fecha_inicio; ?>" class="form-control datetimepicker" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha de termino</label>&nbsp;&nbsp;
+                                    <input type="text" name="fecha_termino" value="<?php echo $fecha_termino; ?>" class="form-control datetimepicker" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" class="btn btn-block btn-primary btn-lg" value="Modificar">
+                                </div>
+                                <div class="form-group">
+                                    <a href="../../../Vistas/pages/Modulo_reserva_espacio_comun/reserva.index.php" class="btn btn-block btn-warning btn-lg">Volver</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="col-md-1"></div>
         </div>
-        <div class="col-md-1"></div>
+        <!-- /.panel-body -->
     </div>
-    <!-- /.panel-body -->
-</div>
-<!-- /.col-lg-12 -->
+    <!-- /.col-lg-12 -->
 </div>
 </div>
 <!-- /#wrapper -->
@@ -256,8 +210,8 @@ break;
 <!-- Datetime Picker -->
 <script type="text/javascript" src="../../vendor/datepicker/jquery.datetimepicker.full.js"></script>
 <script type="text/javascript">
-    jQuery.datetimepicker.setLocale('es');
-    $(".datetimepicker").datetimepicker();
+jQuery.datetimepicker.setLocale('es');
+$(".datetimepicker").datetimepicker();
 </script>
 </body>
 </html>

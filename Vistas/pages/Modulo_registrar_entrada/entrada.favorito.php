@@ -51,6 +51,16 @@ case '7':
 $msg = "Administrador y Residente";
 break;
 }
+
+$usuario = $_SESSION['id_usuario'];
+$residente = "SELECT id_residente FROM residente_condominio WHERE id_usuario = $usuario";
+
+$result_residente = mysqli_query($conexion, $residente);
+
+while($fila = $result_residente->fetch_assoc()){
+    $id_residente = $fila['id_residente'];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,13 +79,11 @@ break;
 		<link href="../../dist/css/sb-admin-2.css" rel="stylesheet">
 		<!-- Custom Fonts -->
 		<link href="../../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+		<!-- Datetime Picker -->
+        <link rel="stylesheet" type="text/css" href="../../vendor/datepicker/jquery.datetimepicker.css">
         <!-- Chosen CSS -->
         <link rel="stylesheet" type="text/css" href="../../vendor/chosen/css/chosen.css">
         <link rel="stylesheet" type="text/css" href="../../vendor/chosen/css/prism.css">
-        <!-- JQuery UI -->
-        <link rel="stylesheet" type="text/css" href="../../vendor/autocompletar/jqueryui.css">
-        <!-- Datetime Picker -->
-        <link rel="stylesheet" type="text/css" href="../../vendor/datepicker/jquery.datetimepicker.css">
 	</head>
 	<body>
 		<div id="wrapper">
@@ -130,7 +138,7 @@ break;
 		<div class="sidebar-nav navbar-collapse">
 			<ul class="nav" id="side-menu">
                 <?php echo MostrarNavegadorSecundario($perfil); ?>
-            </ul>
+			</ul>
 		</div>
 		<!-- /.sidebar-collapse -->
 	</div>
@@ -149,11 +157,28 @@ break;
 		<div class="col-lg-8">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<b>Registro de entrada</b>
+					<b>Registro de entrada para Favoritos</b>
 				</div>
 				<!-- /.panel-heading -->
 				<div class="panel-body">
-					<form action="../../../Clases/Registrar_entrada/class.agregar.php" method="POST">
+					<form action="../../../Clases/Registrar_entrada/class.favorito.php" method="POST">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="favorito">Favorito</label>
+									<select name="favorito" class="form-control">
+										<?php
+											$consulta = "SELECT * FROM favoritos_residente WHERE id_residente = $id_residente";
+											$exec_consulta = mysqli_query($conexion, $consulta);
+
+											while ($fila_consulta = $exec_consulta->fetch_assoc()){
+												echo "<option value='".$fila_consulta['id_favorito']."'>".$fila_consulta['nombre']."</option>";
+											}
+										?>
+									</select>
+								</div>
+							</div>
+						</div>
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group" style="display: none;">
@@ -168,6 +193,9 @@ break;
 								<div class="form-group" style="display: none;">
 									<input type="text" name="condominio" value="<?php echo $id_condominio; ?>">
 								</div>
+                                <div class="form-group" style="display: none;">
+                                    <input type="text" name="residente" value="<?php echo $id_residente; ?>">
+                                </div>
 								<div class="form-group">
 									<label>Categoria</label>
 									<select name="categoria" class="form-control" required>
@@ -230,50 +258,25 @@ break;
 									</select>
 								</div>
 								<div class="form-group">
-									<label>Número de documento</label>
-									<input type="text" class="form-control" placeholder="Rut" id="rut" name="rut" maxlength="10" required />
+									<label>Fecha y hora estimada</label>&nbsp;&nbsp;
+									<input type="text" name="fecha" class="form-control datetimepicker">
 								</div>
-								<div class="form-group">
-									<label>Nacionalidad</label>&nbsp;&nbsp;
-									<label class="radio-inline">
-										<input type="radio" name="nacionalidad" id="nacionalidad1" value="1" checked>Chileno
-									</label>
-									<label class="radio-inline">
-										<input type="radio" name="nacionalidad" id="nacionalidad2" value="0">Extranjero
-									</label>
-								</div>
-	                            <div class="form-group">
-	                                <label>Fecha de llegada</label>&nbsp;&nbsp;
-	                                <input type="text" name="fecha_llegada" class="form-control datetimepicker" value="<?php $tz = 'America/Santiago';
-                                                        $timestamp = time();
-                                                        $dt = new DateTime("now", new DateTimeZone($tz)); //first argument "must" be a string
-                                                        $dt->setTimestamp($timestamp); //adjust the object to correct timestamp
-                                                        echo $dt->format('Y-m-d H:i:s');?>" required>
-	                            </div>
 							</div>
 							<div class="col-md-6">
-								<div class="form-group">
-									<label>Nombre</label>
-									<input type="text" class="form-control" placeholder="Nombre" id="nombre" name="nombre" required />
-								</div>
-								<div class="form-group">
-									<label>Apellido</label>
-									<input type="text" class="form-control" placeholder="Apellido" id="apellido" name="apellido" required />
-								</div>
 								<div class="form-group">
 									<label>Unidad</label>
 									<select name="estructura" class="form-control" required>
 										<?php
 										switch ($perfil) {
-
-											case '1':
+                                            case '1':
                                                 $consulta_ec = "SELECT ec.* FROM estructura_condominio ec inner join residente_condominio rc on rc.id_estructura_condominio = ec.id_estructura_condominio WHERE ec.id_condominio = $id_condominio AND ec.id_estructura_condominio <> '00000' and rc.id_usuario = $id_usuario";
+                                          
                                                 $resultado_ec = mysqli_query($conexion, $consulta_ec);
+
                                                 while($fila_ec = $resultado_ec->fetch_assoc()){
                                                     echo "<option value=".$fila_ec['id_estructura_condominio'].">".$fila_ec['unidad']."</option>";
                                                 }
                                                 break;
-
                                             case '2':
                                                 $consulta_ec = "SELECT * FROM estructura_condominio WHERE id_condominio = $id_condominio AND id_estructura_condominio <> '00000'";
                                                 $resultado_ec = mysqli_query($conexion, $consulta_ec);
@@ -289,7 +292,7 @@ break;
 												}
 												break;
                                             case '4':
-                                                $consulta_ec = "SELECT * FROM estructura_condominio WHERE id_condominio = $id_condominio AND id_estructura_condominio <> '00000'";
+                                                $consulta_ec = "SELECT * FROM estructura_condominio WHERE id_condominio = $id_condominio AND id_estructura_condominio LIKE ('00000')";
                                                 $resultado_ec = mysqli_query($conexion, $consulta_ec);
                                                 while($fila_ec = $resultado_ec->fetch_assoc()){
                                                     echo "<option value=".$fila_ec['id_estructura_condominio'].">".$fila_ec['unidad']."</option>";
@@ -332,23 +335,14 @@ break;
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-md-12">
-								<div class="form-group">
-									<label>Observación</label>
-									<textarea name="observacion" class="form-control" required="" style="resize: none;"> Sin Observaciones</textarea>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<a href="entrada.index.php" class="btn btn-block btn-lg btn-warning">Volver</a>	
-								</div>
-							</div>
 							<div class="col-md-6">
 								<div class="form-group">
 									<input type="submit" class="btn btn-block btn-lg btn-primary" value="Registrar">
-
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<a href="entrada.index.php" class="btn btn-block btn-lg btn-warning">Volver</a>
 								</div>
 							</div>
 						</div>
@@ -379,29 +373,6 @@ break;
 <script type="text/javascript" src="../../vendor/chosen/js/chosen.proto.min.js"></script>
 <script type="text/javascript" src="../../vendor/chosen/js/chosen.jquery.min.js"></script>
 <script type="text/javascript" src="../../vendor/chosen/js/site.js"></script>
-<!-- Jquery UI -->
-<script type="text/javascript" src="../../vendor/autocompletar/jquery-ui.min.js"></script>
-<script>
-    $(document).ready(function(){   
-        $( "#rut" ).autocomplete({
-            source: "buscarregistro.php",
-            minLength: 2
-        });
-        
-        $("#rut").focusout(function(){
-            $.ajax({
-                url:'registrovisita.php',
-                type:'POST',
-                dataType:'json',
-                data:{ rut:$('#rut').val()}
-            }).done(function(respuesta){
-                $("#nombre").val(respuesta.nombre);
-                $("#apellido").val(respuesta.apellido);
-            });
-        });                         
-    });
-</script>
-<!-- Datetime Picker -->
 <script type="text/javascript" src="../../vendor/datepicker/jquery.datetimepicker.full.js"></script>
 <script type="text/javascript">
     jQuery.datetimepicker.setLocale('es');

@@ -1,10 +1,11 @@
 <?php
 session_start();
-require '../../../Datos/config.php';
+require "../../../Datos/config.php";
 require "../../../Datos/sidebar.php";
+
 if(isset($_SESSION['loggedin'])){
-    if ($_SESSION['perfil'] == 3 || $_SESSION['perfil'] == 4 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7) {
-        
+    if ($_SESSION['perfil'] >= 1) {
+
     } else{
         echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
     }
@@ -20,32 +21,41 @@ if(isset($_SESSION['loggedin'])){
 
 $perfil = $_SESSION['perfil'];
 $condominio = $_SESSION['condominio'];
+$usuario = $_SESSION['id_usuario'];
+$consulta_sp = "SELECT id_residente
+FROM residente_condominio
+WHERE id_usuario = $usuario";
+$resultado_sp = mysqli_query($conexion, $consulta_sp);
+while ($fila_sp = $resultado_sp->fetch_assoc()) {
+$usuario_residente = $fila_sp['id_residente'];
+}
+
 #Obtener perfil para mostrar en desplegable del nombre de usuario
 switch ($perfil) {
-    case '-1':
-        $msg = "Usuario Maestro";
-    break;
-    case '1':
-        $msg = "Residente";
-    break;
-    case '2':
-        $msg = "Conserje";
-    break;
-    case '3':
-        $msg = "Mayordomo";
-    break;
-    case '4':
-        $msg = "Administrador de condominio";
-    break;
-    case '5':
-        $msg = "Conserje y Residente";
-    break;
-    case '6':
-        $msg = "Mayordomo y Residente";
-    break;
-    case '7':
-        $msg = "Administrador y Residente";
-    break;
+case '-1':
+$msg = "Usuario Maestro";
+break;
+case '1':
+$msg = "Residente";
+break;
+case '2':
+$msg = "Conserje";
+break;
+case '3':
+$msg = "Mayordomo";
+break;
+case '4':
+$msg = "Administrador de condominio";
+break;
+case '5':
+$msg = "Conserje y Residente";
+break;
+case '6':
+$msg = "Mayordomo y Residente";
+break;
+case '7':
+$msg = "Administrador y Residente";
+break;
 }
 ?>
 <!DOCTYPE html>
@@ -142,18 +152,17 @@ switch ($perfil) {
                     <a class="navbar-brand" href="../index.php">C O N D O P R O</a>
                 </div>
                 <!-- /.navbar-header -->
+
                 <ul class="nav navbar-top-links navbar-right">
-                <b>Usted se encuentra en <?php 
-                    $id = $_SESSION['condominio']; 
-                    $consulta = "SELECT nombre_condominio FROM condominios WHERE id_condominio = $id";
-                    $resultado = mysqli_query($conexion, $consulta);
-
-                    while($fila = $resultado->fetch_assoc()){
+                    <b>Usted se encuentra en <?php
+                        $id = $_SESSION['condominio'];
+                        $consulta = "SELECT nombre_condominio FROM condominios WHERE id_condominio = $id";
+                        $resultado = mysqli_query($conexion, $consulta);
+                        while($fila = $resultado->fetch_assoc()){
                         $nombre = $fila['nombre_condominio'];
-                    }
-
-                    echo $nombre;
-                    ?>&nbsp;<a href="../../../Clases/Condominio/class.cambiar.php">Cambiar</a></b>
+                        }
+                        echo $nombre;
+                        ?>&nbsp;<a href="../../../Clases/Condominio/class.cambiar.php">Cambiar</a></b>
                     <!-- /.dropdown -->
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -192,7 +201,7 @@ switch ($perfil) {
 <div id="page-wrapper">
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Gestión de Espacios Comunes</h1>
+            <h1 class="page-header">Gestión reserva espacios</h1>
         </div>
         <!-- /.col-lg-12 -->
     </div>
@@ -201,7 +210,7 @@ switch ($perfil) {
         <div class="col-lg-12">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <b>Lista de espacios comunes</b>
+                    <b>Lista de reservas</b>
                 </div>
                 <!-- /.panel-heading -->
                 <br>
@@ -209,8 +218,13 @@ switch ($perfil) {
                     <div></div>
                     <div class="col-md-12">
                         &nbsp;&nbsp;&nbsp;
-                        <a href="espacio.agregar.php" class="btn btn-primary btn-success"><span class="glyphicon glyphicon-plus"></span> Nuevo Espacio Comun</a>
-                        <a href="espacio.habilitar.php" class="btn btn-primary btn-success"><span class="glyphicon glyphicon-eye-close"></span> Espacios Comunes Inhabilitados</a>
+                        <?php  
+                            if($perfil > 0){
+                                echo "<a href='reserva.agregar.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Ingresar reserva</a>
+                                    <a href='reserva.index.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-search'></span> Ver disponibilidad</a>";
+
+                            }
+                        ?>
                     </div>
                 </div>
                 
@@ -219,41 +233,111 @@ switch ($perfil) {
                         <thead>
                             <tr>
                                 <th style="display: none;">ID</th>
-                                <th>Condominio</th>
-                                <th>Descripción espacio</th>
-                                <th>Tipo</th>
+                                <th>Espacio común</th>
+                                <th>Residente</th>
+                                <th>Inicio</th>
+                                <th>Termino</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                            $sql = "SELECT
-                            ec.id_espacio_comun as id,
-                            cnd.nombre_condominio as condominio,
-                            ec.descripcion as descripcion,
-                            te.descripcion as tipo,
-                            ec.activo as activo
-                            FROM espacios_comunes ec
-                            JOIN condominios cnd ON ec.id_condominio = cnd.id_condominio
-                            JOIN tipo_espacio te ON ec.id_tipo_espacio = te.id_tipo_espacio 
-                            WHERE ec.activo = 1";
+                            switch ($perfil) {
+                                case '1':
+                                        $sql = "SELECT 
+                                            rec.id_registro_reserva as id_reserva,
+                                            rec.id_residente as id_residente,
+                                            rec.id_espacio_comun as id_espacio_comun,
+                                            ec.descripcion as nombre_espacio_comun,
+                                            us.nombres as nombre_residente,
+                                            rec.fecha_hora_inicio as hora_inicio,
+                                            rec.fecha_hora_termino as hora_termino,
+                                            ec.id_condominio as condominio
+                                        FROM registro_reserva_espacio_comun rec
+                                        JOIN espacios_comunes ec ON rec.id_espacio_comun = ec.id_espacio_comun
+                                        JOIN residente_condominio rc ON rec.id_residente = rc.id_residente
+                                        JOIN usuarios us ON rc.id_usuario = us.id_usuario
+                                        WHERE ec.id_condominio = $condominio
+                                        AND rec.id_residente = $usuario_residente";
+                                    break;
+                                case '5':
+                                        $sql = "SELECT 
+                                            rec.id_registro_reserva as id_reserva,
+                                            rec.id_residente as id_residente,
+                                            rec.id_espacio_comun as id_espacio_comun,
+                                            ec.descripcion as nombre_espacio_comun,
+                                            us.nombres as nombre_residente,
+                                            rec.fecha_hora_inicio as hora_inicio,
+                                            rec.fecha_hora_termino as hora_termino,
+                                            ec.id_condominio as condominio
+                                        FROM registro_reserva_espacio_comun rec
+                                        JOIN espacios_comunes ec ON rec.id_espacio_comun = ec.id_espacio_comun
+                                        JOIN residente_condominio rc ON rec.id_residente = rc.id_residente
+                                        JOIN usuarios us ON rc.id_usuario = us.id_usuario
+                                        WHERE ec.id_condominio = $condominio";
+                                    break;
+                                case '6':
+                                        $sql = "SELECT 
+                                            rec.id_registro_reserva as id_reserva,
+                                            rec.id_residente as id_residente,
+                                            rec.id_espacio_comun as id_espacio_comun,
+                                            ec.descripcion as nombre_espacio_comun,
+                                            us.nombres as nombre_residente,
+                                            rec.fecha_hora_inicio as hora_inicio,
+                                            rec.fecha_hora_termino as hora_termino,
+                                            ec.id_condominio as condominio
+                                        FROM registro_reserva_espacio_comun rec
+                                        JOIN espacios_comunes ec ON rec.id_espacio_comun = ec.id_espacio_comun
+                                        JOIN residente_condominio rc ON rec.id_residente = rc.id_residente
+                                        JOIN usuarios us ON rc.id_usuario = us.id_usuario
+                                        WHERE ec.id_condominio = $condominio";
+                                    break;
+                                case '7':
+                                        $sql = "SELECT 
+                                            rec.id_registro_reserva as id_reserva,
+                                            rec.id_residente as id_residente,
+                                            rec.id_espacio_comun as id_espacio_comun,
+                                            ec.descripcion as nombre_espacio_comun,
+                                            us.nombres as nombre_residente,
+                                            rec.fecha_hora_inicio as hora_inicio,
+                                            rec.fecha_hora_termino as hora_termino,
+                                            ec.id_condominio as condominio
+                                        FROM registro_reserva_espacio_comun rec
+                                        JOIN espacios_comunes ec ON rec.id_espacio_comun = ec.id_espacio_comun
+                                        JOIN residente_condominio rc ON rec.id_residente = rc.id_residente
+                                        JOIN usuarios us ON rc.id_usuario = us.id_usuario
+                                        WHERE ec.id_condominio = $condominio";
+                                    break; 
+                                default:
+                                        $sql = "SELECT 
+                                            rec.id_registro_reserva as id_reserva,
+                                            rec.id_residente as id_residente,
+                                            rec.id_espacio_comun as id_espacio_comun,
+                                            ec.descripcion as nombre_espacio_comun,
+                                            us.nombres as nombre_residente,
+                                            rec.fecha_hora_inicio as hora_inicio,
+                                            rec.fecha_hora_termino as hora_termino,
+                                            ec.id_condominio as condominio
+                                        FROM registro_reserva_espacio_comun rec
+                                        JOIN espacios_comunes ec ON rec.id_espacio_comun = ec.id_espacio_comun
+                                        JOIN residente_condominio rc ON rec.id_residente = rc.id_residente
+                                        JOIN usuarios us ON rc.id_usuario = us.id_usuario
+                                        WHERE ec.id_condominio = $condominio";
+                                    break;
+                            }
+
                             $resultado = mysqli_query($conexion, $sql);
                             while ($row = $resultado->fetch_assoc()) {
                             ?>
                             <tr class="odd gradeX">
-                                <td style="display: none;"><?php echo $row['id']; ?></td>
-                                <td><?php echo $row['condominio']; ?></td>
-                                <td><?php echo $row['descripcion']; ?></td>
-                                <td><?php echo $row['tipo']; ?></td>
+                                <td style="display: none;"><?php echo $row['id_reserva']; ?></td>
+                                <td><?php echo $row['nombre_espacio_comun']; ?></td>
+                                <td><?php echo $row['nombre_residente']; ?></td>
+                                <td><?php echo $row['hora_inicio']; ?></td>
+                                <td><?php echo $row['hora_termino']; ?></td>
                                 <td>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <a href="espacio.modificar.php?id=<?php echo $row['id'];?>" title="Modificar" class="btn btn-info btn-block"><i class="fa fa-pencil"></i></a>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <a href="../../../Clases/Espacio_comun/class.inhabilitar.php?id=<?php echo $row['id'];?>&username=<?php echo $_SESSION['username']; ?>" title="Inhabilitar" class="btn btn-warning btn-block"><i class="fa fa-times"></i></a>
-                                        </div>
-                                    </div>
+                                    <a href="reserva.modificar.php?id=<?php echo $row['id_reserva'];?>&user=<?php echo $_SESSION['username']; ?>" title="Modificar" class="btn btn-warning btn-block"><i class="fa fa-pencil"></i></a>
+                                    <a href="../../../Clases/Reserva_espacio_comun/class.eliminar.php?id=<?php echo $row['id_reserva'];?>&user=<?php echo $_SESSION['username']; ?>" title="Eliminar" class="btn btn-danger btn-block"><i class="fa fa-times"></i></a>
                                 </td>
                             </tr>
                             <?php } ?>
@@ -261,6 +345,8 @@ switch ($perfil) {
                     </table>
                     <!-- /.table-responsive -->
                 </div>
+                
+
                 <!-- /.panel-body -->
             </div>
             <!-- /.panel -->
@@ -272,7 +358,6 @@ switch ($perfil) {
 <!-- /#page-wrapper -->
 </div>
 <!-- /#wrapper -->
-
 <!-- Bootstrap Core JavaScript -->
 <script src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
 <!-- Metis Menu Plugin JavaScript -->

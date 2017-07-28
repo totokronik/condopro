@@ -1,24 +1,54 @@
 <?php
 session_start();
 require "../../../Datos/config.php";
+require "../../../Datos/sidebar.php";
 if(isset($_SESSION['loggedin'])){
-    if ($_SESSION['perfil'] == -1 || $_SESSION['perfil'] > 2 ) {
-        
-    } else{
-        echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
-    }
-    if(isset($_SESSION['condominio'])){
+if ($_SESSION['perfil'] == -1 || $_SESSION['perfil'] == 4 || $_SESSION['perfil'] == 7) {
 
-    }else{
-        echo "<script>alert('No se ha seleccionado condominio'); window.location.href = '../condominio.php'</script>";
-    }
+} else{
+echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
+}
+if(isset($_SESSION['condominio'])){
+}else{
+echo "<script>alert('No se ha seleccionado condominio'); window.location.href = '../condominio.php'</script>";
+}
 }else{
 echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
 }
-
 $perfil = $_SESSION['perfil'];
 $condominio = $_SESSION['condominio'];
 $eleccion_condominio = $_POST['condominio'];
+$consulta_sector = "SELECT cantidad_sectores FROM condominios WHERE id_condominio = $eleccion_condominio";
+$resultado_sector = $conexion->query($consulta_sector);
+while ($fila_sector = $resultado_sector->fetch_assoc()) {
+$sectores = $fila_sector['cantidad_sectores'];
+}
+switch ($perfil) {
+case '-1':
+$msg = "Usuario Maestro";
+break;
+case '1':
+$msg = "Residente";
+break;
+case '2':
+$msg = "Conserje";
+break;
+case '3':
+$msg = "Mayordomo";
+break;
+case '4':
+$msg = "Administrador de condominio";
+break;
+case '5':
+$msg = "Conserje y Residente";
+break;
+case '6':
+$msg = "Mayordomo y Residente";
+break;
+case '7':
+$msg = "Administrador y Residente";
+break;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,6 +67,9 @@ $eleccion_condominio = $_POST['condominio'];
         <link href="../../dist/css/sb-admin-2.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="../../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <!-- Chosen CSS -->
+        <link rel="stylesheet" type="text/css" href="../../vendor/chosen/css/chosen.css">
+        <link rel="stylesheet" type="text/css" href="../../vendor/chosen/css/prism.css">
     </head>
     <body>
         <div id="wrapper">
@@ -53,15 +86,13 @@ $eleccion_condominio = $_POST['condominio'];
                 </div>
                 <!-- /.navbar-header -->
                 <ul class="nav navbar-top-links navbar-right">
-                <b>Usted se encuentra en <?php 
-                    $id = $_SESSION['condominio']; 
+                    <b>Usted se encuentra en <?php
+                    $id = $_SESSION['condominio'];
                     $consulta = "SELECT nombre_condominio FROM condominios WHERE id_condominio = $id";
                     $resultado = mysqli_query($conexion, $consulta);
-
                     while($fila = $resultado->fetch_assoc()){
-                        $nombre = $fila['nombre_condominio'];
+                    $nombre = $fila['nombre_condominio'];
                     }
-
                     echo $nombre;
                     ?>&nbsp;<a href="../../../Clases/Condominio/class.cambiar.php">Cambiar</a></b>
                     <!-- /.dropdown -->
@@ -70,10 +101,16 @@ $eleccion_condominio = $_POST['condominio'];
                             <i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['username'];?> <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
+                            <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a>
                         </li>
-                        <li><a href="../Modulo_favorito/favorito.index.php"><i class="fa fa-gear fa-fw"></i> Favoritos</a>
+                        <li class="divider"></li>
+                        <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
                     </li>
+                    <?php
+                    if($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7){
+                    echo "<li><a href='../Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
+                    }
+                    ?>
                     <li class="divider"></li>
                     <li><a href="../../../Clases/Login/class.logout.php"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
                 </li>
@@ -86,41 +123,7 @@ $eleccion_condominio = $_POST['condominio'];
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-                <li>
-                    <a href="../index.php"><i class="fa fa-dashboard fa-fw"></i> Tablero</a>
-                </li>
-                <li>
-                    <a href="#"><i class="fa fa-users fa-fw"></i> Población Flotante<span class="fa arrow"></span></a>
-                    <ul class="nav nav-second-level">
-                        <li>
-                            <a href="../Modulo_registrar_entrada/entrada.index.php">Registrar Entrada</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#"><i class="fa fa-wrench fa-fw"></i> Administración<span class="fa arrow"></span></a>
-                    <ul class="nav nav-second-level">
-                        <li>
-                            <a href="../Modulo_usuario/usuario.index.php">Usuarios</a>
-                        </li>
-                        <li>
-                            <a href="../Modulo_personal/personal.index.php">Personal</a>
-                        </li>
-                        <li>
-                            <a href="../Modulo_residente/residente.index.php">Residentes</a>
-                        </li>
-                    </ul>
-                    <!-- /.nav-second-level -->
-                </li>
-                <li>
-                    <a href="../Modulo_condominio/condominio.index.php"><i class="fa fa-table fa-fw"></i> Condominios</a>
-                </li>
-                <li>
-                    <a href="../Modulo_espacio_comun/espacio.index.php"><i class="fa fa-bicycle fa-fw"></i> Espacio Común</a>
-                </li>
-                <li>
-                    <a href="../Modulo_estructura_condominio/estructura.index.php"><i class="fa fa-building fa-fw"></i> Estructura Condominio</a>
-                </li>
+                <?php echo MostrarNavegadorSecundario($perfil); ?>
             </ul>
         </div>
         <!-- /.sidebar-collapse -->
@@ -156,24 +159,35 @@ $eleccion_condominio = $_POST['condominio'];
                             <div class="form-group">
                                 <label>Formato de Unidad</label>
                                 <select name="formato" class="form-control">
-                                    <option value="1">Torre - Unidad</option>
-                                    <option value="2">Unidad - Torre</option>
+                                    <?php
+                                    if  ($sectores < 2){
+                                    ?>
                                     <option value="3">Unidad</option>
+                                    <?php
+                                    }else {
+                                    ?>
+                                    <option value="1">Sector o Torre - Unidad</option>
+                                    <option value="2">Unidad - Sector o Torre</option>
+                                    <?php
+                                    }
+                                    ?>
+                                    
                                 </select>
                             </div>
                             <div class="form-group">
                                 <?php
-                                    $consulta_sector = "SELECT cantidad_sectores FROM condominios WHERE id_condominio = $eleccion_condominio";
-                                    $resultado_sector = $conexion->query($consulta_sector);
-
-                                    while ($fila_sector = $resultado_sector->fetch_assoc()) {
-                                        $sectores = $fila_sector['cantidad_sectores'];
-                                    }
-
-                                    for ($i=1; $i <= $sectores; $i++) {
-                                        echo "<label>Nombre de torre o sector (".$i.")</label>";
-                                        echo "<input type='text' name='sector".$i."' class='form-control'>";
-                                    }
+                                if  ($sectores == 1){
+                                #echo "<font color='red' size='2'><label>Presione Botón Crear Estructura</label> <br> ";
+                                echo " <span style='font-size: 12pt; font-weight: bold; color: red; text-align: center;'>Presione Botón Crear Estructura</span> <br><br>";
+                                
+                                }else{
+                                
+                                for ($i=1; $i <= $sectores; $i++) {
+                                
+                                echo "<label>Nombre de torre o sector (".$i.")</label>";
+                                echo "<input type='text' name='sector".$i."' class='form-control' required> ";
+                                }
+                                }
                                 ?>
                             </div>
                             <div class="form-group" style="display: none;">
@@ -181,8 +195,8 @@ $eleccion_condominio = $_POST['condominio'];
                                 <input type="text" class="form-control" placeholder="Usuario Creación" name="usrCreacion" value="<?php echo $_SESSION['username']; ?>"/>
                             </div>
                             <div class="form-group">
-                                <input type="submit" value="Ingresar" class="btn btn-primary btn-block btn-lg">
-                                <a href="estructura.index.php" class="btn btn-warning btn-block btn-lg">Volver</a>
+                                <input type="submit" value="Crear Estructura" class="btn btn-primary btn-block btn-lg">
+                                <a href="estructura.torre.php" class="btn btn-warning btn-block btn-lg">Volver</a>
                             </div>
                         </form>
                     </div>
@@ -205,5 +219,10 @@ $eleccion_condominio = $_POST['condominio'];
 <script src="../../vendor/metisMenu/metisMenu.min.js"></script>
 <!-- Custom Theme JavaScript -->
 <script src="../../dist/js/sb-admin-2.js"></script>
+<!-- Chosen JS -->
+<script type="text/javascript" src="../../vendor/chosen/js/jquery.js"></script>
+<script type="text/javascript" src="../../vendor/chosen/js/chosen.proto.min.js"></script>
+<script type="text/javascript" src="../../vendor/chosen/js/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="../../vendor/chosen/js/site.js"></script>
 </body>
 </html>

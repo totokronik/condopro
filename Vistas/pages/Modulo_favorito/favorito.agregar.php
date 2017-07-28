@@ -1,8 +1,9 @@
 <?php
 session_start();
 require "../../../Datos/config.php";
+require "../../../Datos/sidebar.php";
 if(isset($_SESSION['loggedin'])){
-    if ($_SESSION['perfil'] > 2 ) {
+    if ($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7) {
         
     } else{
         echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
@@ -13,7 +14,7 @@ if(isset($_SESSION['loggedin'])){
         echo "<script>alert('No se ha seleccionado condominio'); window.location.href = '../condominio.php'</script>";
     }
 }else{
-echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
+    echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
 }
 
 $perfil = $_SESSION['perfil'];
@@ -46,6 +47,8 @@ case '7':
 $msg = "Administrador y Residente";
 break;
 }
+
+$id_residente = $_GET['residente'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,164 +100,29 @@ break;
                             <i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['username'];?> <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
-                            <li class="divider"></li>
-                            <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a></li>
-                            
-                            <li><a href="Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
+                        <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a>
                         </li>
-                        <li><a href='Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>
-                        <li class='divider'></li>
-                        <li><a href='../../../Clases/Login/class.logout.php'><i class='fa fa-sign-out fa-fw'></i> Desconectar</a></li>                        
-                    </ul>
-                    <!-- /.dropdown-user -->
+                        <li class="divider"></li>
+                            <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
+                        </li>
+                        <?php
+                            if($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7){
+                                echo "<li><a href='../Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
+                            }
+                        ?>
+                    <li class="divider"></li>
+                    <li><a href="../../../Clases/Login/class.logout.php"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
                 </li>
+            </ul>
+            <!-- /.dropdown-user -->
+        </li>
         <!-- /.dropdown -->
     </ul>
     <!-- /.navbar-top-links -->
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-               <?php switch ($perfil) {
-                        case '-1':
-                        echo    "<li>
-                                    <a href=../'index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_usuario/usuario.index.php'>Usuarios</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                    </ul>
-                                    <!-- /.nav-second-level -->
-                                </li>
-                                <li>
-                                    <a href='../Modulo_condominio/condominio.index.php'><i class='fa fa-table fa-fw'></i> Condominios</a>
-                                </li>";
-                        break;
-                        case '1':
-                        echo   "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_reserva_espacio_comun/reserva.index.php'><i class='fa fa-table fa-fw'></i> Reserva espacio común</a>
-                                </li>";
-                        break;
-                        case '2':
-                            echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                    <!-- /.nav-second-level -->
-                                </li>";
-                        break;
-                        case '3':
-                            echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                    <!-- /.nav-second-level -->
-                                </li>";
-                        break;
-                        case '4':
-                            echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_estructura_condominio/estructura.index.php'><i class='fa fa-building fa-fw'></i> Estructura Condominio</a>
-                                </li>";
-                        break;
-                        default:
-                          echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                    <!-- /.nav-second-level -->
-                                </li>";
-                        break;
-                        } ?> 
+                <?php echo MostrarNavegadorSecundario($perfil); ?>
             </ul>
         </div>
         <!-- /.sidebar-collapse -->
@@ -285,27 +153,13 @@ break;
                                     <label>Usuario</label>
                                     <input type="text" class="form-control" placeholder="Usuario" name="userCreacion" value="<?php echo $_SESSION['username']; ?>" />
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group"  style="display: none;">
                                     <label>Residentes</label>
-                                    <select class="form-control" name="residente" id="residente">
-                                        <option>Seleccione...</option>
-                                        <?php
-                                        $consulta = "SELECT
-                                        rc.id_residente as residente,
-                                        us.nombres as nombre,
-                                        us.apellidos as apellido
-                                        FROM residente_condominio rc
-                                        JOIN usuarios us ON rc.id_usuario = us.id_usuario;";
-                                        $resultado = mysqli_query($conexion, $consulta);
-                                        while ($row = $resultado->fetch_assoc()) {
-                                        ?>
-                                        <option value="<?php echo $row['residente'];?>"><?php echo $row['nombre']." ".$row['apellido']; ?></option>
-                                        <?php } ?>
-                                    </select>
+                                    <input type="text" name="residente" value="<?php echo $id_residente; ?>">
                                 </div>
                                 <div class="form-group">
                                     <label>Numero documento</label>
-                                    <input type="text" class="form-control" placeholder="Nombre de usuario" name="documento" required />
+                                    <input type="text" class="form-control" placeholder="Número de documento" name="documento" required />
                                 </div>
                             </div>
                             <div class="col-md-6">

@@ -1,17 +1,54 @@
 <?php
 session_start();
 require '../../../Datos/config.php';
+require "../../../Datos/sidebar.php";
 if(isset($_SESSION['loggedin'])){
-	if($_SESSION['id_usuario'] == 0){
+    if(isset($_SESSION['perfil'])){
+        $perfil = $_SESSION['perfil'];
+        switch ($perfil) {
+            case '-1':
+                $msg = "Usuario Maestro";
+            break;
+            case '1':
+                $msg = "Residente";
+            break;
+            case '2':
+                $msg = "Conserje";
+            break;
+            case '3':
+                $msg = "Mayordomo";
+            break;
+            case '4':
+                $msg = "Administrador de condominio";
+            break;
+            case '5':
+                $msg = "Conserje y Residente";
+            break;
+            case '6':
+                $msg = "Mayordomo y Residente";
+            break;
+            case '7':
+                $msg = "Administrador y Residente";
+            break;
+        }
 
-	}else{
-		echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
-	}
+        if ($_SESSION['perfil'] == 4 || $_SESSION['perfil'] == 7 || $_SESSION['perfil'] == -1) {
+
+        }else{
+            echo "<script>alert('No tienes privilegios para acceder al módulo'); window.location.href = '../index.php'</script>";
+
+        }
+    }else{
+        if(isset($_SESSION['id_usuario'])){
+            $usuario = $_SESSION['id_usuario'];
+            $msg = "Usuario Maestro";
+        }else{
+            echo "<script>alert('Sólo el usuario maestro tiene acceso a este módulo'); window.location.href = '../../../Clases/Login/class.logout.php'</script>";
+        }
+    }
 }else{
-echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
+    echo "<script>alert('Está página es solo para usuarios registrados'); window.location.href = '../login.html'</script>";
 }
-
-$usuario = $_SESSION['id_usuario'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -108,17 +145,18 @@ $usuario = $_SESSION['id_usuario'];
                 </div>
                 <!-- /.navbar-header -->
                 <ul class="nav navbar-top-links navbar-right">
-                <?php if(isset($_SESSION['condominio'])){ ?>
-                    <b>Usted se encuentra en <?php 
-                    $id = $_SESSION['condominio']; 
-                    $consulta = "SELECT nombre_condominio FROM condominios WHERE id_condominio = $id";
-                    $resultado = mysqli_query($conexion, $consulta);
+                <?php 
+                    if(isset($_SESSION['condominio'])){ ?>
+                        <b>Usted se encuentra en <?php 
+                        $id = $_SESSION['condominio']; 
+                        $consulta = "SELECT nombre_condominio FROM condominios WHERE id_condominio = $id";
+                        $resultado = mysqli_query($conexion, $consulta);
 
-                    while($fila = $resultado->fetch_assoc()){
-                        $nombre = $fila['nombre_condominio'];
-                    }
+                        while($fila = $resultado->fetch_assoc()){
+                            $nombre = $fila['nombre_condominio'];
+                        }
 
-                    echo $nombre;
+                        echo $nombre;
                     ?>&nbsp;<a href="../../../Clases/Condominio/class.cambiar.php">Cambiar</a></b>
                 <?php }else{ ?>
                     <b>No ha seleccionado condominio &nbsp;<a href="../../../Clases/Condominio/class.cambiar.php">Seleccionar</a></b>
@@ -130,10 +168,24 @@ $usuario = $_SESSION['id_usuario'];
                             <i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['username'];?> <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
+                        <li>
+                            <a href="#">
+                                <i class="fa fa-users fa-fw"></i>
+                                    <?php
+                                        echo $msg;
+                                    ?>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
                             <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
                         </li>
-                        <li><a href="../Modulo_favorito/favorito.index.php"><i class="fa fa-gear fa-fw"></i> Favoritos</a>
-                    </li>
+                        <?php
+                            if(isset($perfil)){
+                                if($perfil != -1){
+                                    echo "<li><a href='Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
+                                }
+                            }
+                        ?>
                     <li class="divider"></li>
                     <li><a href="../../../Clases/Login/class.logout.php"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
                 </li>
@@ -146,28 +198,21 @@ $usuario = $_SESSION['id_usuario'];
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-				<?php switch ($usuario) {
-				    case '0':
-				        echo "<li>
-				                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-				                </li>
-				                <li>
-				                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-				                    <ul class='nav nav-second-level'>
-				                        <li>
-				                            <a href='../Modulo_usuario/usuario.index.php'>Usuarios</a>
-				                        </li>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-				                    </ul>
-				                    <!-- /.nav-second-level -->
-				                </li>
-				                <li>
-				                    <a href='../Modulo_condominio/condominio.index.php'><i class='fa fa-table fa-fw'></i> Condominios</a>
-				                </li>";
-				        break;
-				} ?>  
+                                <?php 
+                    if (isset($usuario)) {
+                        switch ($usuario) {
+                            case '0':
+                                echo "<li>
+                                        <a href='Modulo_condominio/condominio.index.php'><i class='fa fa-table fa-fw'></i> Condominios</a>
+                                    </li>";
+                            break;
+                        }
+                    }else{
+                        if(isset($perfil)){
+                            echo MostrarNavegadorSecundario($perfil);
+                        }
+                    }
+                ?>
             </ul>
         </div>
         <!-- /.sidebar-collapse -->
@@ -241,7 +286,7 @@ $usuario = $_SESSION['id_usuario'];
                                 <td><?php echo $row['primer_piso_habitable']; ?></td>
                                 <td><?php echo $row['cantidad_piso_habitables']; ?></td>
                                 <td>
-                                    <a href="condominio.modificar.php?id=<?php echo $row['id']; ?>" title="Modificar" class="btn btn-info btn-block"><i class="fa fa-pencil"></i></a>
+                                    <a href="condominio.modificar.php?id=<?php echo $row['id']; ?>&user=<?php echo $_SESSION['username']; ?>" title="Modificar" class="btn btn-info btn-block"><i class="fa fa-pencil"></i></a>
                                     <a href="../../../Clases/Condominio/class.inhabilitar.php?id=<?php echo $row['id']; ?>&user=<?php echo $_SESSION['username']; ?>" title="Inhabilitar" class="btn btn-warning btn-block"><i class="fa fa-times"></i></a>
                                 </td>
                             </tr>

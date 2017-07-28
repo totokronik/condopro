@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../../../Datos/config.php";
+require "../../../Datos/sidebar.php";
 if(isset($_SESSION['loggedin'])){
 	if($_SESSION['perfil'] >= 1){
 
@@ -19,6 +20,35 @@ if(isset($_SESSION['loggedin'])){
 
 $perfil = $_SESSION['perfil'];
 $condominio = $_SESSION['condominio'];
+$usuario = $_SESSION['id_usuario'];
+
+#Obtener perfil para mostrar en desplegable del nombre de usuario
+switch ($perfil) {
+case '-1':
+$msg = "Usuario Maestro";
+break;
+case '1':
+$msg = "Residente";
+break;
+case '2':
+$msg = "Conserje";
+break;
+case '3':
+$msg = "Mayordomo";
+break;
+case '4':
+$msg = "Administrador de condominio";
+break;
+case '5':
+$msg = "Conserje y Residente";
+break;
+case '6':
+$msg = "Mayordomo y Residente";
+break;
+case '7':
+$msg = "Administrador y Residente";
+break;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,21 +99,7 @@ $condominio = $_SESSION['condominio'];
         $(document).ready(function() {
         $('#example').dataTable( {
         dom: 'Bfrtip',
-        <?php switch ($perfil) {
-        	case '2':
-        		echo "buttons: [
-		        'excel', 'pdf', 'print'
-		        ],";
-        		break;
-        	case '5':
-        		echo "buttons: [
-		        'excel', 'pdf', 'print'
-		        ],";
-        		break;
-        	default:
-        		echo "buttons: [],";
-        		break;
-        } ?>
+        "buttons": [ 'excel', 'pdf', 'print' ],
         "language":{
         "sProcessing":     "Procesando...",
         "sLengthMenu":     "Mostrar _MENU_ registros",
@@ -144,10 +160,16 @@ $condominio = $_SESSION['condominio'];
                             <i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['username'];?> <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-user">
+                        <li><a href="#"><i class="fa fa-users fa-fw"></i> <?php echo $msg; ?></a>
+                        </li>
+                        <li class="divider"></li>
                             <li><a href="../Modulo_usuario/usuario.perfil.php"><i class="fa fa-user fa-fw"></i> Perfil</a>
                         </li>
-                        <li><a href="../Modulo_favorito/favorito.index.php"><i class="fa fa-gear fa-fw"></i> Favoritos</a>
-                    </li>
+                        <?php
+                            if($_SESSION['perfil'] == 1 || $_SESSION['perfil'] == 5 || $_SESSION['perfil'] == 6 || $_SESSION['perfil'] == 7){
+                                echo "<li><a href='../Modulo_favorito/favorito.index.php'><i class='fa fa-gear fa-fw'></i> Favoritos</a></li>";
+                            }
+                        ?>
                     <li class="divider"></li>
                     <li><a href="../../../Clases/Login/class.logout.php"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
                 </li>
@@ -160,92 +182,7 @@ $condominio = $_SESSION['condominio'];
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-                <?php switch ($perfil) {
-                    case '-1':
-                        echo "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_usuario/usuario.index.php'>Usuarios</a>
-                                        </li>
-                                    </ul>
-                                    <!-- /.nav-second-level -->
-                                </li>
-                                <li>
-                                    <a href='../Modulo_condominio/condominio.index.php'><i class='fa fa-table fa-fw'></i> Condominios</a>
-                                </li>";
-                        break;
-
-                    case '4':
-                        echo "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                    <!-- /.nav-second-level -->
-                                </li>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_estructura_condominio/estructura.index.php'><i class='fa fa-building fa-fw'></i> Estructura Condominio</a>
-                                </li>";
-                        break;
-                    
-                    default:
-                         echo  "<li>
-                                    <a href='../index.php'><i class='fa fa-dashboard fa-fw'></i> Tablero</a>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-users fa-fw'></i> Población Flotante<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_registrar_entrada/entrada.index.php'>Registrar Entrada</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href='#'><i class='fa fa-wrench fa-fw'></i> Administración<span class='fa arrow'></span></a>
-                                    <ul class='nav nav-second-level'>
-                                        <li>
-                                            <a href='../Modulo_personal/personal.index.php'>Personal</a>
-                                        </li>
-                                        <li>
-                                            <a href='../Modulo_residente/residente.index.php'>Residentes</a>
-                                        </li>
-                                    </ul>
-                                    <!-- /.nav-second-level -->
-                                </li>
-                                <li>
-                                    <a href='../Modulo_condominio/condominio.index.php'><i class='fa fa-table fa-fw'></i> Condominios</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_espacio_comun/espacio.index.php'><i class='fa fa-bicycle fa-fw'></i> Espacio Común</a>
-                                </li>
-                                <li>
-                                    <a href='../Modulo_estructura_condominio/estructura.index.php'><i class='fa fa-building fa-fw'></i> Estructura Condominio</a>
-                                </li>";
-                        break;
-                } ?>  
+                <?php echo MostrarNavegadorSecundario($perfil); ?>   
             </ul>
         </div>
         <!-- /.sidebar-collapse -->
@@ -271,10 +208,36 @@ $condominio = $_SESSION['condominio'];
                 <div class="row">
                     <?php switch ($perfil) {
                         case '1':
-                            echo "<div class='col-md-6'>
+
+                            # Verifica si el que ingresa al modulo es residente
+                            $residente_existe = "SELECT id_residente FROM residente_condominio WHERE id_usuario = $usuario";
+                            $resultado_existe = mysqli_query($conexion, $residente_existe);
+
+                            if(mysqli_num_rows($resultado_existe) > 0){
+                                while($fila_existe = $resultado_existe->fetch_assoc()){
+                                    $residente = $fila_existe['id_residente'];
+                                }
+
+                                $residente_fav = "SELECT * FROM favoritos_residente WHERE id_residente = $residente";
+                                $resultado_fav = mysqli_query($conexion, $residente_fav);
+                                if(mysqli_num_rows($resultado_fav) > 0){
+                                 echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.favorito.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada Favorito</a>
+                                  </div>";
+                                }else{
+                                    echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    </div>";
+                                }
+                            }else{
+                                echo "<div class='col-md-6'>
                                     &nbsp;&nbsp;&nbsp;
                                     <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
                                   </div>";
+                            }
                             break;
                     	case '2':
                     		echo "<div class='col-md-6'>
@@ -287,32 +250,117 @@ $condominio = $_SESSION['condominio'];
                     		echo "<div class='col-md-6'>
 			                        &nbsp;&nbsp;&nbsp;
 			                        <a href='entrada.agregar.php?condominio=<?php echo $condominio; ?>' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
 			                      </div>";
                     		break;
                         case '4':
                             echo "<div class='col-md-6'>
                                     &nbsp;&nbsp;&nbsp;
                                     <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
                                   </div>";
                             break;
                         case '5':
-                            echo "<div class='col-md-6'>
+                            # Verifica si el que ingresa al modulo es residente
+                            $residente_existe = "SELECT id_residente FROM residente_condominio WHERE id_usuario = $usuario";
+                            $resultado_existe = mysqli_query($conexion, $residente_existe);
+
+                            if(mysqli_num_rows($resultado_existe) > 0){
+                                while($fila_existe = $resultado_existe->fetch_assoc()){
+                                    $residente = $fila_existe['id_residente'];
+                                }
+
+                                $residente_fav = "SELECT * FROM favoritos_residente WHERE id_residente = $residente";
+                                $resultado_fav = mysqli_query($conexion, $residente_fav);
+                                if(mysqli_num_rows($resultado_fav) > 0){
+                                 echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.favorito.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada Favorito</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
+                                  </div>";
+                                }else{
+                                    echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
+                                    </div>";
+                                }
+                            }else{
+                                echo "<div class='col-md-6'>
                                     &nbsp;&nbsp;&nbsp;
                                     <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
                                     <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
                                   </div>";
+                            }
                             break;
                         case '6':
-                            echo "<div class='col-md-6'>
+                            # Verifica si el que ingresa al modulo es residente
+                            $residente_existe = "SELECT id_residente FROM residente_condominio WHERE id_usuario = $usuario";
+                            $resultado_existe = mysqli_query($conexion, $residente_existe);
+
+                            if(mysqli_num_rows($resultado_existe) > 0){
+                                while($fila_existe = $resultado_existe->fetch_assoc()){
+                                    $residente = $fila_existe['id_residente'];
+                                }
+
+                                $residente_fav = "SELECT * FROM favoritos_residente WHERE id_residente = $residente";
+                                $resultado_fav = mysqli_query($conexion, $residente_fav);
+                                if(mysqli_num_rows($resultado_fav) > 0){
+                                 echo "<div class='col-md-6'>
                                     &nbsp;&nbsp;&nbsp;
                                     <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.favorito.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada Favorito</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
                                   </div>";
+                                }else{
+                                    echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
+                                    </div>";
+                                }
+                            }else{
+                                echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
+                                  </div>";
+                            }
                             break;
                         case '7':
-                            echo "<div class='col-md-6'>
+                            # Verifica si el que ingresa al modulo es residente
+                            $residente_existe = "SELECT id_residente FROM residente_condominio WHERE id_usuario = $usuario";
+                            $resultado_existe = mysqli_query($conexion, $residente_existe);
+
+                            if(mysqli_num_rows($resultado_existe) > 0){
+                                while($fila_existe = $resultado_existe->fetch_assoc()){
+                                    $residente = $fila_existe['id_residente'];
+                                }
+
+                                $residente_fav = "SELECT * FROM favoritos_residente WHERE id_residente = $residente";
+                                $resultado_fav = mysqli_query($conexion, $residente_fav);
+                                if(mysqli_num_rows($resultado_fav) > 0){
+                                 echo "<div class='col-md-6'>
                                     &nbsp;&nbsp;&nbsp;
                                     <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.favorito.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada Favorito</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
                                   </div>";
+                                }else{
+                                    echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
+                                    </div>";
+                                }
+                            }else{
+                                echo "<div class='col-md-6'>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <a href='entrada.agregar.php?condominio=".$condominio."' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-plus'></span> Nueva Entrada</a>
+                                    <a href='entrada.historial.php' class='btn btn-primary btn-success'><span class='glyphicon glyphicon-list'></span> Historial de visitas</a>
+                                  </div>";
+                            }
                             break;
                     }?>
                 </div>
@@ -322,61 +370,65 @@ $condominio = $_SESSION['condominio'];
                             <tr>
                                 <th>Unidad</th>
                                 <th>Nombre</th>
-                                <th>Categoria</th>
-                                <th>Estacionamiento</th>
+                                <th>Estado</th>
                                 <th>Fecha/hora registro</th>
                                 <th>Fecha/hora ingreso</th>
                                 <th>Fecha/hora salida</th>
-                                <th>Estado</th>
-                                <?php switch ($perfil) {
-                                	case '2':
-                                		echo "<th>Acciones</th>";
-                                		break;
-                                	case '5':
-                                		echo "<th>Acciones</th>";
-                                		break;
-                                	case '1':
-                                		echo "<th>Acciones</th>";
-                                		break;
-                                	default:
-                                		echo "";
-                                		break;
-                                } ?>
+                                <th>Categoria</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                            $consulta_total = "SELECT
-                            rpf.id_registro AS id_registro,
-                            rpf.chileno AS nacionalidad,
-                            rpf.nombre AS nombre,
-                            rpf.fecha_hora_registro AS registro,
-                            rpf.fecha_hora_ingreso AS ingreso,
-                            rpf.fecha_hora_salida AS salida,
-                            rpf.uso_estacionamiento AS estacionamiento,
-                            tpf.descripcion AS categoria,
-                            epf.descripcion AS estado,
-                            ec.unidad AS unidad
-                            FROM registro_poblacion_flotante AS rpf
-                            INNER JOIN tipo_poblacion_flotante AS tpf ON rpf.id_tipo_poblacion_flotante = tpf.id_tipo_poblacion_flotante
-                            INNER JOIN estados_poblacion_flotante AS epf ON rpf.id_estado_registro = epf.id_estado_registro
-                            INNER JOIN estructura_condominio AS ec ON ec.id_estructura_condominio = rpf.id_estructura_condominio
-                            WHERE ec.id_condominio = $condominio
-                            AND rpf.id_estado_registro BETWEEN '1' AND '2'";
+                            switch($perfil){
+                                case '1':
+                                        $consulta_total = "SELECT
+                                        rpf.id_registro AS id_registro,
+                                        rpf.chileno AS nacionalidad,
+                                        rpf.nombre AS nombre,
+                                        rpf.fecha_hora_registro AS registro,
+                                        rpf.fecha_hora_ingreso AS ingreso,
+                                        rpf.fecha_hora_salida AS salida,
+                                        rpf.uso_estacionamiento AS estacionamiento,
+                                        tpf.descripcion AS categoria,
+                                        epf.descripcion AS estado,
+                                        ec.unidad AS unidad
+                                        FROM registro_poblacion_flotante AS rpf
+                                        INNER JOIN tipo_poblacion_flotante AS tpf ON rpf.id_tipo_poblacion_flotante = tpf.id_tipo_poblacion_flotante
+                                        INNER JOIN estados_poblacion_flotante AS epf ON rpf.id_estado_registro = epf.id_estado_registro
+                                        INNER JOIN estructura_condominio AS ec ON ec.id_estructura_condominio = rpf.id_estructura_condominio
+                                        WHERE ec.id_condominio = $condominio
+                                        AND rpf.id_estado_registro BETWEEN '1' AND '2'
+                                        AND rpf.id_usuario = $usuario";
+                                    break;
+                                default:
+                                        $consulta_total = "SELECT
+                                        rpf.id_registro AS id_registro,
+                                        rpf.chileno AS nacionalidad,
+                                        rpf.nombre AS nombre,
+                                        rpf.fecha_hora_registro AS registro,
+                                        rpf.fecha_hora_ingreso AS ingreso,
+                                        rpf.fecha_hora_salida AS salida,
+                                        rpf.uso_estacionamiento AS estacionamiento,
+                                        tpf.descripcion AS categoria,
+                                        epf.descripcion AS estado,
+                                        ec.unidad AS unidad
+                                        FROM registro_poblacion_flotante AS rpf
+                                        INNER JOIN tipo_poblacion_flotante AS tpf ON rpf.id_tipo_poblacion_flotante = tpf.id_tipo_poblacion_flotante
+                                        INNER JOIN estados_poblacion_flotante AS epf ON rpf.id_estado_registro = epf.id_estado_registro
+                                        INNER JOIN estructura_condominio AS ec ON ec.id_estructura_condominio = rpf.id_estructura_condominio
+                                        WHERE ec.id_condominio = $condominio
+                                        AND rpf.id_estado_registro BETWEEN '1' AND '2'";
+                                    break;
+
+                            }
                             $resultado_total = mysqli_query($conexion, $consulta_total);
                             while ($row = $resultado_total->fetch_assoc()) {
                             ?>
                             <tr class="odd gradeX">
                                 <td><?php echo $row['unidad']; ?></td>
                                 <td><?php echo $row['nombre']; ?></td>
-                                <td><?php echo $row['categoria']; ?></td>
-                                <td><?php 
-                                    if($row['estacionamiento'] == '1'){
-                                        echo "En Uso";
-                                    }else{
-                                        echo "Sin Uso";
-                                    } ?>
-                                </td>
+                                <td><?php echo $row['estado']; ?></td>
                                 <td><?php echo $row['registro']; ?></td>
                                 <td><?php echo $row['ingreso']; ?></td>
                                 <td><?php 
@@ -386,28 +438,88 @@ $condominio = $_SESSION['condominio'];
                                         echo $row['salida']; 
                                     } ?>
                                 </td>
-                                <td><?php echo $row['estado']; ?></td>
+                                <td><?php echo $row['categoria']; ?></td>
                                 <?php switch ($perfil) {
+                                    case '1':
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.cancelar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-danger btn-block'><i class='fa fa-minus-circle'></i></a>
+                                             </td>";
+                                        }
+                                        break;
                                 	case '2':
-                                		echo "<td>
-											    <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
-											    <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
-											 </td>";
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
+                                             </td>";
+                                        }
                                 		break;
+                                    case '3':
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
+                                             </td>";
+                                        }
+                                        break;
+                                    case '4':
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
+                                             </td>";
+                                        }
+                                        break;
                                 	case '5':
-                                		echo "<td>
-											    <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
-											    <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
-											 </td>";
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
+                                                <a href='../../../Clases/Registrar_entrada/class.cancelar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-danger btn-block'><i class='fa fa-minus-circle'></i></a>
+                                             </td>";
+                                        }
                                 		break;
-                                	case '1':
-                                		echo "<td>
-												<a href='../../../Clases/Registrar_entrada/class.cancelar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-danger btn-block'><i class='fa fa-minus-circle'></i></a>
-											 </td>";
-                                		break;
-                                	default:
-                                		echo "";
-                                		break;
+                                    case '6':
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
+                                                <a href='../../../Clases/Registrar_entrada/class.cancelar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-danger btn-block'><i class='fa fa-minus-circle'></i></a>
+                                             </td>";
+                                        }
+                                        break;
+                                    case '7':
+                                        if($row['estado'] == 'Ingreso validado'){
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.salida.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-warning btn-block'><i class='fa fa-sign-out'></i></a>
+                                             </td>";
+                                        }else{
+                                            echo "<td>
+                                                <a href='../../../Clases/Registrar_entrada/class.validar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-success btn-block'><i class='fa fa-check'></i></a>
+                                                <a href='../../../Clases/Registrar_entrada/class.cancelar.php?id=".$row['id_registro']."&user=".$_SESSION['username']."' class='btn btn-danger btn-block'><i class='fa fa-minus-circle'></i></a>
+                                             </td>";
+                                        }
+                                        break;
                                 } ?>
                             </tr>
                             <?php } ?>
